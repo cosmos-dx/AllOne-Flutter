@@ -1,10 +1,20 @@
-# planner_app
+# AllOne(A Password Keeping Application)
 
 A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+#Key Features
+
+1. OTP based login
+2. Encryption Decryption
+3. Effective Manage
+4. Open to Use
+
+#Contribution 
+
+We are open For contribution
+
 
 A few resources to get you started if this is your first Flutter project:
 
