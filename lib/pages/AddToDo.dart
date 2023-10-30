@@ -688,6 +688,9 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     widget.parentKey: dataArray,
                   });
                 } else {
+                   await docRef.update({
+                  widget.parentKey: FieldValue.arrayUnion([data]),
+                });
                   showSnackBar(context, "Data with the provided ID not found.");
                 }
               } else if (selectedCategory == '') {
