@@ -4,6 +4,9 @@ A new Flutter project.
 
 ## Getting Started
 
+1. Set Your Project to FireBase 
+2. Get Creds google-services.json from Firsbase and paste it to the android/app/
+
 #Key Features
 
 1. OTP based login
