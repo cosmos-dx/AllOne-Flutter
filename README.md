@@ -1,10 +1,23 @@
-# planner_app
+# AllOne(A Password Keeping Application)
 
 A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Set Your Project to FireBase 
+2. Get Creds google-services.json from Firsbase and paste it to the android/app/
+
+#Key Features
+
+1. OTP based login
+2. Encryption Decryption
+3. Effective Manage
+4. Open to Use
+
+#Contribution 
+
+We are open For contribution
+
 
 A few resources to get you started if this is your first Flutter project:
 
@@ -14,4 +27,4 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-# Planner_dx
+# Fork and Give a Star
