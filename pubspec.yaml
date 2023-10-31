@@ -53,7 +53,7 @@ dependencies:
   connectivity_plus: ^5.0.1
   http: ^0.13.5
   shared_preferences: ^2.2.2
-
+  local_auth: ^2.1.7
 
 dev_dependencies:
   flutter_test:

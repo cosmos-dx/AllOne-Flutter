@@ -244,14 +244,15 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         SizedBox(height: 25),
                         text_label("Display Name"),
                         SizedBox(height: 5),
-                        textItem("Set Site Display Name", _displayName, false),
+                        textItem("Set Site Display Name", _displayName, false,
+                            isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
                         text_label("Data Info"),
                         SizedBox(height: 5),
                         textItem("Small brief about the Site/Data", _datainfo,
-                            false),
+                            false, isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
@@ -259,7 +260,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        textItem("Username/SiteName", _sitename, false),
+                        textItem("Username/SiteName", _sitename, false,
+                            isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
@@ -267,7 +269,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         SizedBox(
                           height: 5,
                         ),
-                        textItem("Password", _password, false),
+                        textItem(
+                            "Password", _password, false, isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
@@ -555,8 +558,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
     );
   }
 
-  Widget textItem(
-      String labeltext, TextEditingController controller, bool obsecuretext) {
+  Widget textItem(String labeltext, TextEditingController controller,
+      bool obsecuretext, bool isDecryptionClicked) {
     bool isDisplayName = false;
     if (controller == _displayName) {
       isDisplayName = true;
@@ -568,6 +571,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
       child: TextFormField(
         controller: controller,
         obscureText: obsecuretext,
+        enabled: isDecryptionClicked,
         style: TextStyle(
           fontSize: 17,
           color: Colors.white,
@@ -610,8 +614,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
   }
 
   bool isAlphaNumeric(String text) {
-    RegExp alphaNumeric = RegExp(r'^[a-zA-Z0-9]+$');
-    return alphaNumeric.hasMatch(text);
+    RegExp alphaNumericWithSpaces = RegExp(r'^[a-zA-Z0-9 ]+$');
+    return alphaNumericWithSpaces.hasMatch(text);
   }
 
   Widget buttonadddata(BuildContext context, dynamic passingData) {
@@ -688,7 +692,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     widget.parentKey: dataArray,
                   });
                 } else {
-                  showSnackBar(context, "Data with the provided ID not found.");
+                  await docRef.update({
+                    widget.parentKey: FieldValue.arrayUnion([data]),
+                  });
+                  // showSnackBar(context, "Data with the provided ID not found.");
                 }
               } else if (selectedCategory == '') {
                 await docRef.update({

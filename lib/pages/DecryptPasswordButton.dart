@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:planner_app/Service/Auth_Service.dart';
 import 'package:planner_app/Service/EncryptionService.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
 
 class DecryptPasswordButton extends StatefulWidget {
   final Function onPressed;
@@ -24,6 +26,38 @@ class _DecryptPasswordButtonState extends State<DecryptPasswordButton> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   String verificationIDFinal = "";
   String smscode = "";
+  final LocalAuthentication fingerprintauth = LocalAuthentication();
+
+  Future<bool> isSensorAvilable() async {
+    final bool canAuthenticateWithBiometrics =
+        await fingerprintauth.canCheckBiometrics;
+    final bool canAuthenticate = canAuthenticateWithBiometrics ||
+        await fingerprintauth.isDeviceSupported();
+    return canAuthenticate;
+  }
+
+  Future<bool> isAuthenticated() async {
+    bool didAuthenticate = false;
+    try {
+      didAuthenticate = await fingerprintauth.authenticate(
+          localizedReason: 'Please authenticate to show account balance',
+          options: const AuthenticationOptions(useErrorDialogs: false));
+      // ···
+    } on PlatformException catch (e) {
+      if (e.code == auth_error.notEnrolled) {
+        // Add handling of no hardware here.
+      } else if (e.code == auth_error.lockedOut ||
+          e.code == auth_error.permanentlyLockedOut) {
+        // ...
+      } else {
+        // ...
+      }
+    }
+    // final bool didAuthenticate = await fingerprintauth.authenticate(
+    //     localizedReason: 'Please authenticate to show account balance',
+    //     options: const AuthenticationOptions(biometricOnly: true));
+    return didAuthenticate;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +82,14 @@ class _DecryptPasswordButtonState extends State<DecryptPasswordButton> {
             await authClass.verifyPhoneNumber(userID, context, setData);
             _showOTPDialog(context);
           } else {
-            // If userID is an email, decrypt the password directly
+            // if (await isSensorAvilable()) {
+            //   if (await isAuthenticated()) {
+            //     decryptPassword();
+            //   }
+            //   showSnackBar(context, "FingerPrint Not Matched");
+            // } else {
+            //   showSnackBar(context, "Sensors are not Available");
+            // }
             decryptPassword();
           }
         },
