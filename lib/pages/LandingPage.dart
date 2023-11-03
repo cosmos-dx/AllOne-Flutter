@@ -29,13 +29,6 @@ class _LandingPageState extends State<LandingPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "AllOne",
-                style: TextStyle(
-                    color: Color.fromARGB(255, 1, 1, 1),
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold),
-              ),
               Image.asset(
                 'assets/Landing4.png',
                 height: 400,
@@ -47,12 +40,21 @@ class _LandingPageState extends State<LandingPage> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "AllOne",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 38,
-                            fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Text(
+                            "AllOne",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 38,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Image.asset(
+                            'assets/Alloneicon.png',
+                            width: 50,
+                            height: 50,
+                          ),
+                        ],
                       ),
                       SizedBox(height: 62),
                       Text(

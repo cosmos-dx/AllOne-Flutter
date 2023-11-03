@@ -47,9 +47,18 @@ class _HomePageState extends State<HomePage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   List<dynamic> currentState = [];
   String currentStateKey = "";
+  bool isSearchDropdownVisible = false;
   List<String> categories = [];
-  Map<String, dynamic> searchResults = new Map();
+  List<dynamic> dropDownsearchResults = [];
+  List<dynamic> dropDownsearchFilteredResults = [];
   List<dynamic> results = [];
+
+  void setDropDownResut(Map<String, dynamic> mp) {
+    for (MapEntry en in mp.entries) {
+      dropDownsearchResults.addAll(en.value);
+    }
+  }
+
   void fetchDataFromFirestore() async {
     final user = auth.currentUser;
     if (user != null) {
@@ -65,7 +74,7 @@ class _HomePageState extends State<HomePage> {
           if (firstKey != null) {
             setState(() {
               mp = data;
-              searchResults = mp;
+              setDropDownResut(mp);
               categories = mp.keys.toList();
               currentState = mp[firstKey];
               currentStateKey = firstKey;
@@ -150,11 +159,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(
-                    'assets/github.svg',
-                    height: 80,
-                    width: 80,
-                    color: Colors.white,
+                  Image.asset(
+                    'assets/Alloneicon.png',
+                    height: 120,
+                    width: 120,
                   ),
                   _buildText("GitHub", "https://www.github.com/cosmos-dx"),
                   _buildText("www.github.com/cosmos-dx",
@@ -188,490 +196,519 @@ class _HomePageState extends State<HomePage> {
         }
       }
     }
-
-    setState(() {
-      searchResults[searchParentKey] = result;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: AppBar(
         backgroundColor: Colors.black87,
-        title: SizedBox(
-          child: Text(
-            "AllOne",
-            style: TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        actions: [
-          InkWell(
-            onTap: () {
-              authClass.logout(context);
-            },
-            child: Stack(
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage("assets/logout.png"),
+        appBar: AppBar(
+          backgroundColor: Colors.black87,
+          title: SizedBox(
+              child: Row(
+            children: [
+              Text(
+                "AllOne",
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-              ],
+              ),
+              Image.asset(
+                'assets/Alloneicon.png',
+                width: 50,
+                height: 50,
+              ),
+            ],
+          )),
+          actions: [
+            InkWell(
+              onTap: () {
+                authClass.logout(context);
+              },
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage("assets/logout.png"),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            width: 25,
-          ),
-        ],
-        bottom: PreferredSize(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 22),
-                child: Text(
-                  "Categories",
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w500,
+            SizedBox(
+              width: 25,
+            ),
+          ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.black87,
+          items: [
+            BottomNavigationBarItem(
+              icon: InkWell(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (builder) => AllOneNotes()));
+                },
+                child: Icon(
+                  Icons.notes_outlined,
+                  color: Colors.white,
+                ),
+              ),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: [
+                      Colors.indigoAccent,
+                      Colors.purple,
+                    ])),
+                child: InkWell(
+                  onTap: () {
+                    print(auth.currentUser);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => AddTodoPage(
+                                propData: {},
+                                parentKey: currentStateKey,
+                                categorieslist: categories)),
+                        (route) => false);
+                  },
+                  child: Icon(
+                    Icons.add,
                     color: Colors.white,
                   ),
                 ),
               ),
+              label: '',
             ),
-            preferredSize: Size.fromHeight(35)),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black87,
-        items: [
-          BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (builder) => AllOneNotes()));
-              },
-              child: Icon(
-                Icons.notes_outlined,
-                color: Colors.white,
-              ),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              height: 52,
-              width: 52,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [
-                    Colors.indigoAccent,
-                    Colors.purple,
-                  ])),
-              child: InkWell(
+            BottomNavigationBarItem(
+              icon: InkWell(
                 onTap: () {
-                  print(auth.currentUser);
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                          builder: (builder) => AddTodoPage(
-                              propData: {},
-                              parentKey: currentStateKey,
-                              categorieslist: categories)),
-                      (route) => false);
+                  _showBottomSheet(context);
                 },
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
+                child: Image.asset(
+                  'assets/export.png',
+                  width: 25,
+                  height: 25,
                 ),
               ),
+              backgroundColor: Colors.white,
+              label: '',
             ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: InkWell(
-              onTap: () {
-                _showBottomSheet(context);
-              },
-              child: Image.asset(
-                'assets/export.png',
-                width: 25,
-                height: 25,
-              ),
-            ),
-            backgroundColor: Colors.white,
-            label: '',
-          ),
-        ],
-      ),
-      body: Column(
-        children: <Widget>[
-          Container(
-            height: 200,
-            margin: EdgeInsets.only(top: 15),
-            child: Stack(
-              children: [
-                if (isReloading)
-                  Positioned.fill(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                if (!isReloading)
-                  Positioned(
-                    left: -30,
-                    top: 0,
-                    width: 250,
-                    child: Container(
-                      height: 300,
-                      width: 300,
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              colors: [Colors.pink, Colors.transparent]),
-                          borderRadius: BorderRadius.circular(300)),
-                    ),
-                  ),
-                Positioned(
-                  left: -80,
-                  top: -10,
-                  width: 260,
-                  child: Container(
-                    height: 260,
-                    width: 260,
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [
-                          Colors.indigo,
-                          Colors.blue,
-                          Colors.pink,
-                          Colors.orange
-                        ], transform: GradientRotation(5.8)),
-                        borderRadius: BorderRadius.circular(260)),
-                  ),
-                ),
-                ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.all(10),
-                    children: [
-                      Row(
-                        children: this
-                            .mp
-                            .keys
-                            .map((e) => Row(
-                                  children: [
-                                    CategoryCard(
-                                        currentStateKey, e, changeState, e, mp),
-                                    SizedBox(width: 15),
-                                  ],
-                                ))
-                            .toList(),
-                      ),
-                      CategoryCard(
-                          currentStateKey, "", changeState, "AddCardUnique", mp,
-                          isAddCard: true),
-                    ]),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 22,
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.all(16.0),
-          //   child: Container(
-          //     decoration: BoxDecoration(
-          //       color: Colors.white,
-          //       borderRadius: BorderRadius.circular(40.0),
-          //     ),
-          //     child: Align(
-          //       alignment: Alignment.center,
-          //       child: Column(
-          //         mainAxisSize: MainAxisSize.min,
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         children: [
-          //           TextField(
-          //             controller: _searchController,
-          //             style: TextStyle(fontSize: 17),
-          //             onChanged: (value) {
-          //               searchInList(
-          //                   mp, _searchController.text, currentStateKey);
-          //             },
-          //             decoration: InputDecoration(
-          //               contentPadding: EdgeInsets.symmetric(vertical: 16.0),
-          //               hintText: "Search Passwords",
-          //               border: InputBorder.none,
-          //               prefixIcon: Icon(Icons.search),
-          //             ),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          Expanded(
-            child: Stack(
-              children: [
-                if (isReloading)
-                  Positioned.fill(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                if (!isReloading)
-                  Positioned(
-                    right: -80,
-                    bottom: -50,
-                    width: 350,
-                    height: 350,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.orange,
-                            Colors.pink,
-                            Colors.blue,
-                            Colors.indigo,
-                          ],
-                          transform: GradientRotation(6.5),
-                        ),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: CustomScrollView(
-                    slivers: <Widget>[
-                      SliverPadding(
-                        padding: EdgeInsets.only(top: 20),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(40.0),
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          TextField(
+                            controller: _searchController,
+                            style: TextStyle(fontSize: 17),
+                            onChanged: (value) {
+                              setState(() {
+                                if (value.isEmpty) {
+                                  isSearchDropdownVisible = false;
+                                } else
+                                  isSearchDropdownVisible = true;
+
+                                dropDownsearchFilteredResults =
+                                    dropDownsearchResults
+                                        .where((element) => element["name"]
+                                            .toLowerCase()
+                                            .contains(value.toLowerCase()))
+                                        .toList();
+                              });
+                              // searchInList(
+                              //     mp, _searchController.text, currentStateKey);
+                            },
+                            decoration: InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 16.0),
+                              hintText: "Search Passwords",
+                              border: InputBorder.none,
+                              prefixIcon: Icon(Icons.search),
+                            ),
+                          ),
+                        ],
                       ),
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
-                            Color itemColor = index.isOdd
-                                ? Color.fromARGB(186, 255, 255, 255)
-                                : Color.fromARGB(141, 51, 51, 52);
-                            double itemHeight = index == 4 ? 60.0 : 60.0;
-                            double gapHeight = 20.0;
-                            double blurHeight = 40.0;
-
-                            bool isTapped =
-                                currentState[index]['isTapped'] ?? false;
-
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: gapHeight),
-                              child: GestureDetector(
-                                onLongPress: () {
-                                  HapticFeedback
-                                      .mediumImpact(); // Trigger vibration
-
-                                  TextEditingController textController =
-                                      TextEditingController();
-
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text("Delete Confirmation"),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            TextField(
-                                              controller: textController,
-                                              decoration: InputDecoration(
-                                                hintText:
-                                                    "Type 'I want to delete' to confirm",
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("No"),
-                                          ),
-                                          TextButton(
-                                            onPressed: () async {
-                                              String enteredText =
-                                                  textController.text
-                                                      .trim()
-                                                      .toLowerCase();
-                                              if (enteredText ==
-                                                  "i want to delete") {
-                                                final CollectionReference
-                                                    allOneDataCollection =
-                                                    FirebaseFirestore.instance
-                                                        .collection(
-                                                            'AllOneData');
-                                                final userId =
-                                                    auth.currentUser?.uid;
-                                                final String idToDelete =
-                                                    currentState[index]['id'];
-
-                                                try {
-                                                  DocumentSnapshot doc =
-                                                      await allOneDataCollection
-                                                          .doc(userId)
-                                                          .get();
-
-                                                  if (doc.exists) {
-                                                    Map<String, dynamic> data =
-                                                        doc.data() as Map<
-                                                            String, dynamic>;
-
-                                                    if (data.containsKey(
-                                                        currentStateKey)) {
-                                                      List<dynamic>
-                                                          currentStateList =
-                                                          data[currentStateKey];
-
-                                                      currentStateList
-                                                          .removeWhere((item) =>
-                                                              item['id'] ==
-                                                              idToDelete);
-
-                                                      await allOneDataCollection
-                                                          .doc(userId)
-                                                          .update({
-                                                            currentStateKey:
-                                                                currentStateList,
-                                                          })
-                                                          .then((value) => {
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                        SnackBar(
-                                                                  content: Text(
-                                                                      "Data deleted from the Server."),
-                                                                ))
-                                                              })
-                                                          .then((value) => {
-                                                                setState(() {
-                                                                  currentState
-                                                                      .removeAt(
-                                                                          index);
-                                                                })
-                                                              });
-                                                    }
-                                                  }
-                                                } catch (error) {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        "Some Error Occured."),
-                                                  ));
-                                                }
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                  content:
-                                                      Text("Deletion Stopped"),
-                                                ));
-                                              }
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text("Yes"),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                                onTap: () {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (builder) => AddTodoPage(
-                                            propData: currentState[index],
-                                            parentKey: currentStateKey,
-                                            categorieslist: categories)),
-                                    (route) => false,
-                                  );
-
-                                  setState(() {
-                                    currentState[index]['isTapped'] = !isTapped;
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: itemColor,
-                                    border: Border.all(
-                                      color: isTapped
-                                          ? Colors.green
-                                          : Colors.transparent,
-                                      width: 2.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                      height: itemHeight,
-                                      alignment: Alignment.center,
-                                      child: Stack(
+                    ),
+                  ),
+                ),
+                Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(left: 20),
+                    child: Text(
+                      "Categories",
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    )),
+                Container(
+                  height: 200,
+                  margin: EdgeInsets.only(top: 15),
+                  child: Stack(
+                    children: [
+                      if (isReloading)
+                        Positioned.fill(
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      if (!isReloading)
+                        Positioned(
+                          left: -30,
+                          top: 0,
+                          width: 250,
+                          child: Container(
+                            height: 300,
+                            width: 300,
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    colors: [Colors.pink, Colors.transparent]),
+                                borderRadius: BorderRadius.circular(300)),
+                          ),
+                        ),
+                      Positioned(
+                        left: -80,
+                        top: -10,
+                        width: 260,
+                        child: Container(
+                          height: 260,
+                          width: 260,
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: [
+                                Colors.indigo,
+                                Colors.blue,
+                                Colors.pink,
+                                Colors.orange
+                              ], transform: GradientRotation(5.8)),
+                              borderRadius: BorderRadius.circular(260)),
+                        ),
+                      ),
+                      ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.all(10),
+                          children: [
+                            Row(
+                              children: this
+                                  .mp
+                                  .keys
+                                  .map((e) => Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              SizedBox(width: 25),
-                                              Container(
-                                                width: 50,
-                                                child: SvgPicture.asset(
-                                                  currentState[index]
-                                                      ['iconpath'],
-                                                  width: 24,
-                                                  height: 24,
-                                                ),
+                                          CategoryCard(currentStateKey, e,
+                                              changeState, e, mp),
+                                          SizedBox(width: 15),
+                                        ],
+                                      ))
+                                  .toList(),
+                            ),
+                            CategoryCard(currentStateKey, "", changeState,
+                                "AddCardUnique", mp,
+                                isAddCard: true),
+                          ]),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 22,
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      if (isReloading)
+                        Positioned.fill(
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      if (!isReloading)
+                        Positioned(
+                          right: -80,
+                          bottom: -50,
+                          width: 350,
+                          height: 350,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.orange,
+                                  Colors.pink,
+                                  Colors.blue,
+                                  Colors.indigo,
+                                ],
+                                transform: GradientRotation(6.5),
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        child: CustomScrollView(
+                          slivers: <Widget>[
+                            SliverPadding(
+                              padding: EdgeInsets.only(top: 20),
+                            ),
+                            SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (BuildContext context, int index) {
+                                  Color itemColor = index.isOdd
+                                      ? Color.fromARGB(186, 255, 255, 255)
+                                      : Color.fromARGB(141, 51, 51, 52);
+                                  double itemHeight = index == 4 ? 60.0 : 60.0;
+                                  double gapHeight = 20.0;
+                                  double blurHeight = 40.0;
+
+                                  bool isTapped =
+                                      currentState[index]['isTapped'] ?? false;
+
+                                  return Padding(
+                                    padding: EdgeInsets.only(bottom: gapHeight),
+                                    child: GestureDetector(
+                                      onLongPress: () {
+                                        HapticFeedback
+                                            .mediumImpact(); // Trigger vibration
+
+                                        TextEditingController textController =
+                                            TextEditingController();
+
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title:
+                                                  Text("Delete Confirmation"),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  TextField(
+                                                    controller: textController,
+                                                    decoration: InputDecoration(
+                                                      hintText:
+                                                          "Type 'I want to delete' to confirm",
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              Container(
-                                                width: 150,
-                                                child: Text(
-                                                  '${currentState[index]['name']}',
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: index.isEven
-                                                        ? Colors.white
-                                                        : Colors.black,
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("No"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    String enteredText =
+                                                        textController.text
+                                                            .trim()
+                                                            .toLowerCase();
+                                                    if (enteredText ==
+                                                        "i want to delete") {
+                                                      final CollectionReference
+                                                          allOneDataCollection =
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  'AllOneData');
+                                                      final userId =
+                                                          auth.currentUser?.uid;
+                                                      final String idToDelete =
+                                                          currentState[index]
+                                                              ['id'];
+
+                                                      try {
+                                                        DocumentSnapshot doc =
+                                                            await allOneDataCollection
+                                                                .doc(userId)
+                                                                .get();
+
+                                                        if (doc.exists) {
+                                                          Map<String, dynamic>
+                                                              data = doc.data()
+                                                                  as Map<String,
+                                                                      dynamic>;
+
+                                                          if (data.containsKey(
+                                                              currentStateKey)) {
+                                                            List<dynamic>
+                                                                currentStateList =
+                                                                data[
+                                                                    currentStateKey];
+
+                                                            currentStateList
+                                                                .removeWhere((item) =>
+                                                                    item[
+                                                                        'id'] ==
+                                                                    idToDelete);
+
+                                                            await allOneDataCollection
+                                                                .doc(userId)
+                                                                .update({
+                                                                  currentStateKey:
+                                                                      currentStateList,
+                                                                })
+                                                                .then(
+                                                                    (value) => {
+                                                                          ScaffoldMessenger.of(context)
+                                                                              .showSnackBar(SnackBar(
+                                                                            content:
+                                                                                Text("Data deleted from the Server."),
+                                                                          ))
+                                                                        })
+                                                                .then(
+                                                                    (value) => {
+                                                                          setState(
+                                                                              () {
+                                                                            currentState.removeAt(index);
+                                                                          })
+                                                                        });
+                                                          }
+                                                        }
+                                                      } catch (error) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                SnackBar(
+                                                          content: Text(
+                                                              "Some Error Occured."),
+                                                        ));
+                                                      }
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                              context)
+                                                          .showSnackBar(
+                                                              SnackBar(
+                                                        content: Text(
+                                                            "Deletion Stopped"),
+                                                      ));
+                                                    }
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text("Yes"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      onTap: () {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (builder) => AddTodoPage(
+                                                  propData: currentState[index],
+                                                  parentKey: currentStateKey,
+                                                  categorieslist: categories)),
+                                          (route) => false,
+                                        );
+
+                                        setState(() {
+                                          currentState[index]['isTapped'] =
+                                              !isTapped;
+                                        });
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: itemColor,
+                                          border: Border.all(
+                                            color: isTapped
+                                                ? Colors.green
+                                                : Colors.transparent,
+                                            width: 2.0,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Center(
+                                          child: Container(
+                                            height: itemHeight,
+                                            alignment: Alignment.center,
+                                            child: Stack(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    SizedBox(width: 25),
+                                                    Container(
+                                                      width: 50,
+                                                      child: SvgPicture.asset(
+                                                        currentState[index]
+                                                            ['iconpath'],
+                                                        width: 24,
+                                                        height: 24,
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      width: 150,
+                                                      child: Text(
+                                                        '${currentState[index]['name']}',
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: index.isEven
+                                                              ? Colors.white
+                                                              : Colors.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Positioned(
+                                                  right: 45,
+                                                  top: 5,
+                                                  child: Opacity(
+                                                    opacity: 0.6,
+                                                    child: Text(
+                                                      '${currentState[index]['siteinfo']}',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: index.isEven
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          Positioned(
-                                            right: 45,
-                                            top: 5,
-                                            child: Opacity(
-                                              opacity: 0.6,
-                                              child: Text(
-                                                '${currentState[index]['siteinfo']}',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: index.isEven
-                                                      ? Colors.white
-                                                      : Colors.black,
+                                                Positioned(
+                                                  right: 15,
+                                                  bottom: -1,
+                                                  child: Image.asset(
+                                                    'assets/opencard.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
                                           ),
-                                          Positioned(
-                                            right: 15,
-                                            bottom: -1,
-                                            child: Image.asset(
-                                              'assets/opencard.png',
-                                              width: 25,
-                                              height: 25,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
+                                childCount: currentState.length,
                               ),
-                            );
-                          },
-                          childCount: currentState.length,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -679,10 +716,91 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+            if (isSearchDropdownVisible)
+              Positioned.fill(
+                top: 70,
+                child: Container(
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                  margin: EdgeInsets.all(15),
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Color.fromARGB(142, 255, 255, 255),
+                        ),
+                        child: CustomScrollView(
+                          slivers: [
+                            SliverList.builder(
+                              itemBuilder: ((context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (builder) => AddTodoPage(
+                                              propData:
+                                                  dropDownsearchFilteredResults[
+                                                      index],
+                                              parentKey:
+                                                  dropDownsearchFilteredResults[
+                                                      index]['category'],
+                                              categorieslist: categories)),
+                                      (route) => false,
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(5))),
+                                    padding: EdgeInsets.all(15),
+                                    margin: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            SvgPicture.asset(
+                                              dropDownsearchFilteredResults[
+                                                  index]["iconpath"],
+                                              height: 20,
+                                              width: 20,
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                            ),
+                                            Text(dropDownsearchFilteredResults[
+                                                index]["name"])
+                                          ],
+                                        ),
+                                        Text(
+                                          dropDownsearchFilteredResults[index]
+                                              ["siteinfo"],
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              overflow: TextOverflow.ellipsis),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                              itemCount: dropDownsearchFilteredResults.length,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+          ],
+        ));
   }
 
   Widget _buildText(String text, String link) {

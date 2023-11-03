@@ -35,12 +35,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.transparent,
+                  color: Colors.white,
                 ),
                 child: ClipOval(
                   child: Image.asset(
-                    "assets/display1.png",
-                    fit: BoxFit.cover,
+                    "assets/Allonelogo.jpg",
+                    // fit: BoxFit.cover,
+                    width: 100,
+                    height: 100,
                   ),
                 ),
               ),
