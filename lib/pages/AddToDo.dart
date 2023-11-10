@@ -7,6 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:planner_app/Service/Auth_Service.dart';
 import 'dart:math';
@@ -249,19 +251,22 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         SizedBox(
                           height: 10,
                         ),
-                        text_label("Data Info"),
+                        text_label("SiteName/Data Info"),
                         SizedBox(height: 5),
-                        textItem("Small brief about the Site/Data", _datainfo,
-                            false, isDecryptionClicked),
+                        textItem(
+                            "www.example.com Or Small brief about the Site/Data",
+                            _datainfo,
+                            false,
+                            isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
-                        text_label("SiteName"),
+                        text_label("UserName"),
                         SizedBox(
                           height: 5,
                         ),
-                        textItem("Username/SiteName", _sitename, false,
-                            isDecryptionClicked),
+                        textItem(
+                            "Username", _sitename, false, isDecryptionClicked),
                         SizedBox(
                           height: 10,
                         ),
@@ -568,7 +573,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
     return Container(
       width: MediaQuery.of(context).size.width - 70,
       height: 55,
-      child: TextFormField(
+      child: TextField(
         controller: controller,
         obscureText: obsecuretext,
         enabled: isDecryptionClicked,
@@ -653,8 +658,6 @@ class _AddTodoPageState extends State<AddTodoPage> {
               showSnackBar(
                   context, "Display Name cannot contain special Chars");
             }
-
-            await Future.delayed(Duration(seconds: 2));
 
             if (user != null) {
               final temp = user.uid;
@@ -769,6 +772,17 @@ class _AddTodoPageState extends State<AddTodoPage> {
         ),
       ),
     );
+  }
+
+  void authAction() async {
+    final credentials = await _authClass.getToken();
+
+    if (credentials != null) {
+      await FlutterSecureStorage().write(
+        key: _sitename.text,
+        value: _password.text,
+      );
+    }
   }
 
   void handleDecryptedPassword(String decryptedPassword) {

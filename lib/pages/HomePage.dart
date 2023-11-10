@@ -5,9 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:planner_app/Customs/TodoCard.dart';
 import 'package:planner_app/Service/Auth_Service.dart';
+import 'package:planner_app/Service/FingerprintAuthentication.dart';
 import 'package:planner_app/pages/AddToDo.dart';
 import 'package:intl/intl.dart';
 import 'package:planner_app/pages/AllOneNotes.dart';
@@ -31,15 +33,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isReloading = true;
   TextEditingController _searchController = TextEditingController();
+  late final FingerPrintAuth fingerPrintAuth = FingerPrintAuth();
+
   @override
   void initState() {
     super.initState();
     fetchDataFromFirestore();
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        isReloading = false;
-      });
-    });
+    // Future.delayed(Duration(seconds: 1), () {
+    //   setState(() {
+    //     isReloading = false;
+    //   });
+    // });
+    fingerPrintAuth.authenticateFingers();
   }
 
   Map<String, dynamic> mp = new Map();
@@ -225,7 +230,7 @@ class _HomePageState extends State<HomePage> {
           actions: [
             InkWell(
               onTap: () {
-                authClass.logout(context);
+                _showLogoutConfirmationDialog();
               },
               child: Stack(
                 children: [
@@ -803,6 +808,33 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
+  void _showLogoutConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout Confirmation'),
+          content: Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                authClass.logout(context);
+                Navigator.of(context).pop();
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildText(String text, String link) {
     return InkWell(
       onTap: () {},
@@ -811,7 +843,7 @@ class _HomePageState extends State<HomePage> {
         child: Text(
           text,
           style: TextStyle(
-            fontSize: 24,
+            fontSize: MediaQuery.of(context).size.width < 380 ? 10 : 24,
             color: Colors.white, // Text color
           ),
         ),

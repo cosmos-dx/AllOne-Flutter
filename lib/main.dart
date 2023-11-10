@@ -2,8 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:planner_app/Service/Auth_Service.dart';
+import 'package:planner_app/Service/FingerprintAuthentication.dart';
 import 'package:planner_app/pages/AddToDo.dart';
 import 'package:planner_app/pages/HomePage.dart';
+import 'package:planner_app/pages/HomePagePassword.dart';
 import 'package:planner_app/pages/LandingPage.dart';
 import 'package:planner_app/pages/SignUPPage.dart';
 
@@ -24,6 +26,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Widget currentPage = LandingPage();
   AuthClass authClass = AuthClass();
+  FingerPrintAuth fingerPrintAuth = FingerPrintAuth();
   @override
   void initState() {
     super.initState();
@@ -32,10 +35,17 @@ class _MyAppState extends State<MyApp> {
 
   void checkLogin() async {
     String? token = await authClass.getToken();
+    await fingerPrintAuth.checkBiometricAvailability();
     if (token != null) {
-      setState(() {
-        currentPage = HomePage();
-      });
+      if (fingerPrintAuth.isBiometricAvaialbale) {
+        setState(() {
+          currentPage = HomePage();
+        });
+      } else {
+        setState(() {
+          currentPage = HomePagePassword();
+        });
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:planner_app/Service/Auth_Service.dart';
 import 'package:planner_app/pages/HomePage.dart';
 import 'package:planner_app/pages/PhoneAuthPage.dart';
@@ -19,6 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _passController = TextEditingController();
   bool circular = false;
   AuthClass authClass = AuthClass();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,13 +82,19 @@ class _SignUpPageState extends State<SignUpPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Do You Know We Can Do Better If You Support !!!",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: Text(
+                        "Do You Know We Can Do Better If You Support !!!",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize:
+                              MediaQuery.of(context).size.width < 380 ? 10 : 16,
+                        ),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ],

@@ -9,6 +9,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:planner_app/Service/EncryptionService.dart';
+import 'package:planner_app/Service/FingerprintAuthentication.dart';
+import 'package:planner_app/pages/HomePagePassword.dart';
+import 'package:planner_app/pages/LandingPage.dart';
 import 'package:uuid/uuid.dart';
 import '../pages/HomePage.dart';
 
@@ -23,6 +26,8 @@ class AuthClass {
   final storage = new FlutterSecureStorage();
 
   Future<void> googleSignIn(BuildContext context) async {
+    FingerPrintAuth fingerPrintAuth = FingerPrintAuth();
+    await fingerPrintAuth.checkBiometricAvailability();
     try {
       GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
@@ -38,11 +43,23 @@ class AuthClass {
               await auth.signInWithCredential(credential);
           storeTokenAndData(userCredential);
           await addDefaultNotes(userCredential);
+          await addDefaultPass(userCredential);
           addDefaultDataToUserDatabase(userCredential).then((value) => {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (builder) => HomePage()),
-                    (route) => false)
+                if (fingerPrintAuth.isBiometricAvaialbale)
+                  {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (builder) => HomePage()),
+                        (route) => false)
+                  }
+                else
+                  {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => HomePagePassword()),
+                        (route) => false)
+                  }
               });
         } catch (e) {
           final snackbar = SnackBar(content: Text(e.toString()));
@@ -83,6 +100,29 @@ class AuthClass {
     return storage.read(
       key: "userCredential",
     );
+  }
+
+  Future<void> addDefaultPass(UserCredential userCredential) async {
+    final user = userCredential.user;
+    if (user != Null) {
+      final userId = user?.uid;
+      final uuid = Uuid();
+      final defaultDataNotes = {
+        "password": {"pass"},
+      };
+
+      try {
+        final firestore = FirebaseFirestore.instance;
+        final collection2 = firestore.collection('AllOneLocalAuthPass');
+        final userDocument2 = collection2.doc(userId);
+        final userDocSnapshot2 = await userDocument2.get();
+        if (!userDocSnapshot2.exists) {
+          await userDocument2.set(defaultDataNotes);
+        } else {}
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   Future<void> addDefaultNotes(UserCredential userCredential) async {
@@ -334,7 +374,12 @@ class AuthClass {
       await _googleSignIn.signOut();
       await auth.signOut();
       storage.delete(key: "token");
-      SystemNavigator.pop();
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (builder) => LandingPage()),
+          (route) => false);
+      showSnackBar(context, "Logged Out");
     } catch (e) {
       final snackbar = SnackBar(content: Text(e.toString()));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -343,6 +388,8 @@ class AuthClass {
 
   Future<void> signInwithPhoneNumber(
       String verificationId, String smsCode, BuildContext context) async {
+    FingerPrintAuth fingerPrintAuth = FingerPrintAuth();
+
     try {
       AuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: smsCode);
@@ -351,13 +398,22 @@ class AuthClass {
           await auth.signInWithCredential(credential);
       await storeTokenAndDataforPhone(userCredential);
       await addDefaultNotes(userCredential);
+      await addDefaultPass(userCredential);
       await addDefaultDataToUserDatabase(userCredential);
-
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (builder) => HomePage()),
-          (route) => false);
-      showSnackBar(context, "Logged In");
+      await fingerPrintAuth.checkBiometricAvailability();
+      if (fingerPrintAuth.isBiometricAvaialbale) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (builder) => HomePage()),
+            (route) => false);
+        showSnackBar(context, "Logged In");
+      } else {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (builder) => HomePagePassword()),
+            (route) => false);
+        showSnackBar(context, "Logged In");
+      }
     } catch (e) {
       showSnackBar(context, e.toString());
     }

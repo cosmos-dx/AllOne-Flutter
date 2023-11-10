@@ -57,13 +57,20 @@ class _LandingPageState extends State<LandingPage> {
                         ],
                       ),
                       SizedBox(height: 62),
-                      Text(
-                        "Here we keep your all passwords Safe !!!",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
+                      Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: Center(
+                            child: Text(
+                              "Here we keep your all passwords Safe !!!",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width < 360
+                                        ? 12
+                                        : 16,
+                              ),
+                            ),
+                          ))
                     ],
                   ),
                 ],
