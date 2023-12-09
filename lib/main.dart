@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:planner_app/Service/Auth_Service.dart';
 import 'package:planner_app/Service/FingerprintAuthentication.dart';
 import 'package:planner_app/pages/AddToDo.dart';
+import 'package:planner_app/pages/AuthenticatorPage.dart';
 import 'package:planner_app/pages/HomePage.dart';
 import 'package:planner_app/pages/HomePagePassword.dart';
 import 'package:planner_app/pages/LandingPage.dart';
@@ -39,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     if (token != null) {
       if (fingerPrintAuth.isBiometricAvaialbale) {
         setState(() {
-          currentPage = HomePage();
+          currentPage = HomePage(); //AuthenticatorPage();
         });
       } else {
         setState(() {

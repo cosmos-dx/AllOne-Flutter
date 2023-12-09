@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:planner_app/pages/StrengthPage.dart';
+import 'package:planner_app/pages/AuthenticatorPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -275,13 +275,17 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: InkWell(
                 onTap: () {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (builder) => StrengthPage(
+                  //               mp: mp,
+                  //               categories: categories,
+                  //             )));
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (builder) => StrengthPage(
-                                mp: mp,
-                                categories: categories,
-                              )));
+                          builder: (builder) => AuthenticatorPage()));
                 },
                 child: Icon(
                   Icons.timelapse_sharp,
