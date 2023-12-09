@@ -793,22 +793,6 @@ class _AddTodoPageState extends State<AddTodoPage> {
     });
   }
 
-  Color getRandomColor(bool flag) {
-    if (flag) {
-      Random random = new Random();
-      int r = random.nextInt(100);
-      int g = random.nextInt(256);
-      int b = random.nextInt(256);
-      return Color.fromARGB(155, r, g, b);
-    } else {
-      Random random = new Random();
-      int r = random.nextInt(100);
-      int g = random.nextInt(256);
-      int b = random.nextInt(256);
-      return Color.fromARGB(15, r, g, b);
-    }
-  }
-
   void showSnackBar(BuildContext context, String texti) {
     final snackBar = SnackBar(content: Text(texti));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

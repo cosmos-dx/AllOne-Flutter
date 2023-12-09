@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:planner_app/pages/HomePage.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:totp/totp.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -21,10 +24,10 @@ class AuthenticatorPage extends StatefulWidget {
 class _AuthenticatorPageState extends State<AuthenticatorPage> {
   final secretKey = "JBSWY3DPEHPK3PXP";
   late List<String> currentTOTPs;
-  List<Timer> timers = [];
+
   ScanResult? scanResult;
   Timer? _timer;
-  int _countdown = 0;
+  int timerCountdown = 0;
   TextEditingController keyController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   double _percentTimer = 1.0;
@@ -40,63 +43,85 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
     ..removeWhere((e) => e == BarcodeFormat.unknown);
 
   List<BarcodeFormat> selectedFormats = [..._possibleFormats];
-  List<List<String>> _secretKeysNameData = [
-    ["Instagram", "JBSWY3DPEHPK3PXP"],
-    ["Facebook", "JBSXY3DPGHPK3PXP"],
-    ["Jacob", "JBSWY3DPEHPK3PPP"],
-    ["America", "JBSWY3DPELPKPPXP"],
-    ["Reddit", "JBSWY3DPEHPK3PXP"],
-    ["Google", "JBSWP3DPWHPK3PXP"],
-    ["Microsoft", "JBSWY3DPEHOK3PXP"],
-  ];
+  List<List<String>> _secretKeysNameData = [];
+
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    currentTOTPs = List.filled(_secretKeysNameData.length, "");
-    startTimers();
-    Future.delayed(Duration.zero, () async {
-      _numberOfCameras = await BarcodeScanner.numberOfCameras;
-      setState(() {});
-    });
-  }
-
-  void startTimers() {
-    for (int i = 0; i < _secretKeysNameData.length; i++) {
-      startTimerForIndex(i);
-    }
-  }
-
-  void startTimerForIndex(int index) {
-    Timer timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        currentTOTPs[index] = generateTOTP(
-          _secretKeysNameData[index][1],
-          currentTime: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
-        );
-        _countdown = getTimeUntilNextStep();
+    loadSecretKeys().then((value) {
+      currentTOTPs = List.filled(_secretKeysNameData.length, "");
+      Future.delayed(Duration.zero, () async {
+        _numberOfCameras = await BarcodeScanner.numberOfCameras;
+        // generateAllTOTPs();
+        if (!_secretKeysNameData.isEmpty) {
+          startTimer();
+          setState(() {});
+        }
       });
     });
-
-    timers.add(timer);
   }
 
-  void stopTimers() {
-    for (var timer in timers) {
-      timer.cancel();
+  Future<void> loadSecretKeys() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? secretKeyManager = prefs.getStringList('secretKeyManager');
+
+    if (secretKeyManager != null) {
+      setState(() {
+        _secretKeysNameData =
+            secretKeyManager.map((entry) => entry.split(',')).toList();
+      });
     }
-    timers.clear();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (timerCountdown <= 0) {
+        generateAllTOTPs();
+        setState(() {
+          timerCountdown = getTimeUntilNextStep();
+        });
+      } else {
+        setState(() {
+          timerCountdown--;
+        });
+      }
+    });
+  }
+
+  void stopTimer() {
+    if (timer != null && timer!.isActive) {
+      timer?.cancel();
+      timer = null;
+    }
   }
 
   @override
   void dispose() {
-    stopTimers();
+    stopTimer();
     super.dispose();
+  }
+
+  void generateAllTOTPs() {
+    for (int i = 0; i < _secretKeysNameData.length; i++) {
+      String secret = _secretKeysNameData[i][1];
+
+      String otp = generateTOTP(secret);
+      currentTOTPs[i] = otp;
+    }
+  }
+
+  bool isValidBase32(String input) {
+    final RegExp base32Regex = RegExp('^[A-Z2-7]+=*\$', caseSensitive: false);
+    return base32Regex.hasMatch(input);
   }
 
   String generateTOTP(String secret,
       {int timeStep = 30, int digits = 6, int? currentTime}) {
     currentTime ??= DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    currentTime += 3; //added time difference
+
     currentTime ~/= timeStep;
 
     final timeBytes = ByteData(8);
@@ -120,7 +145,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
 
   int getTimeUntilNextStep({int timeStep = 30}) {
     final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    return timeStep - (currentTime % timeStep);
+    return timeStep - ((currentTime + 3) % timeStep); //added time difference
   }
 
   @override
@@ -158,7 +183,8 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
                 ),
                 PopupMenuItem<String>(
                   onTap: () {
-                    _showInputDialog(context);
+                    _showInputDialog(context, false);
+                    stopTimer();
                   },
                   value: 'enterCode',
                   child: Row(
@@ -198,8 +224,8 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
                   _secretKeysNameData.length,
                   (index) => Column(
                     children: [
-                      _totpCardBuilder(
-                          _secretKeysNameData[index], currentTOTPs[index]),
+                      _totpCardBuilder(_secretKeysNameData[index],
+                          currentTOTPs[index], index),
                       SizedBox(height: 16),
                     ],
                   ),
@@ -212,68 +238,72 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
     );
   }
 
-  Widget _totpCardBuilder(List<String> data, String currentTOTP) {
-    return Container(
-      width: MediaQuery.of(context).size.width -
-          (MediaQuery.of(context).size.width) / 20,
-      height: MediaQuery.of(context).size.height / 6,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10), color: Colors.grey[800]),
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  data[0],
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w300),
-                )
-              ],
+  Widget _totpCardBuilder(List<String> data, String currentTOTP, int index) {
+    return GestureDetector(
+      onTap: () {
+        _showInputDialog(context, true);
+        keyController.text = data[1].toString();
+        nameController.text = data[0].toString();
+      },
+      onLongPress: () {
+        HapticFeedback.mediumImpact();
+        FlutterClipboard.copy(currentTOTP);
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width -
+            (MediaQuery.of(context).size.width) / 20,
+        height: MediaQuery.of(context).size.height / 6,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: index.isEven
+                ? Colors.grey[800]
+                : Color.fromARGB(136, 255, 255, 255)),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    data[0],
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w300),
+                  )
+                ],
+              ),
             ),
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  currentTOTP,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 50,
-                      fontWeight: FontWeight.w300),
-                ),
-                // CircularPercentIndicator(
-                //   radius: 20,
-                //   animationDuration: getTimeUntilNextStep(),
-                //   animation: true,
-                //   progressColor: const Color.fromARGB(255, 6, 255, 15),
-                //   backgroundColor: Color.fromARGB(52, 118, 255, 64),
-                //   lineWidth: 6,
-                //   circularStrokeCap: CircularStrokeCap.round,
-                //   percent: _percentTimer,
-                // )
-                Text(
-                  _countdown.toString(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w200,
-                    fontSize: 25,
-                    color: Colors.white,
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    currentTOTP,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 50,
+                        fontWeight: FontWeight.w300),
                   ),
-                )
-              ],
-            ),
-          )
-        ],
+                  Text(
+                    timerCountdown.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w200,
+                      fontSize: 25,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 
-  void _showInputDialog(BuildContext context) {
+  void _showInputDialog(BuildContext context, bool forEdit) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -285,7 +315,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
               children: [
                 TextField(
                   controller: keyController,
-                  decoration: InputDecoration(labelText: 'Enter Sceret Key'),
+                  decoration: InputDecoration(labelText: 'Enter Secret Key'),
                 ),
                 TextField(
                   controller: nameController,
@@ -295,28 +325,86 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
             ),
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                String key = keyController.text;
-                String name = nameController.text;
-                if (key.isEmpty || name.isEmpty) {
-                  showSnackBar(context, "Value Can not be empty");
-                  return;
-                }
-                setState(() {
-                  stopTimers();
-                  _secretKeysNameData.add([name, key]);
-                  currentTOTPs.add("");
-                  startTimers();
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
+            !forEdit
+                ? ElevatedButton(
+                    onPressed: () async {
+                      String key = keyController.text.toString();
+                      String name = nameController.text.toString();
+                      if (key.isEmpty || name.isEmpty) {
+                        showSnackBar(context, "Value cannot be empty");
+                        return;
+                      }
+                      if (!isValidBase32(key)) {
+                        showSnackBar(context, "Enter Valid key");
+                        return;
+                      }
+                      List<String> nameKeyData = [
+                        name,
+                        key.replaceAll(RegExp(r'\s'), '')
+                      ];
+
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      List<String>? secretKeyManager =
+                          prefs.getStringList('secretKeyManager');
+                      secretKeyManager ??= [];
+                      secretKeyManager.add(nameKeyData.join(','));
+                      prefs.setStringList('secretKeyManager', secretKeyManager);
+                      setState(() {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (builder) => HomePage()),
+                            (route) => false);
+                      });
+                      // Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  )
+                : ElevatedButton(
+                    onPressed: () async {
+                      String key = keyController.text.toString();
+                      String name = nameController.text.toString();
+
+                      if (key.isNotEmpty && name.isNotEmpty) {
+                        await deleteSecretKey(name, key);
+                      }
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (builder) => HomePage()),
+                          (route) => false);
+                    },
+                    child: Text('Delete'),
+                  ),
           ],
         );
       },
     );
+  }
+
+  Future<void> deleteSecretKey(String name, String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? secretKeyManager = prefs.getStringList('secretKeyManager');
+
+    if (secretKeyManager != null) {
+      String entryToDelete = name + ',' + key;
+
+      int indexToDelete = -1;
+      for (int i = 0; i < secretKeyManager.length; i++) {
+        if (entryToDelete == secretKeyManager[i]) {
+          setState(() {
+            indexToDelete = i;
+          });
+        }
+      }
+
+      if (indexToDelete != -1) {
+        secretKeyManager.removeAt(indexToDelete);
+        prefs.setStringList('secretKeyManager', secretKeyManager);
+        setState(() {
+          loadSecretKeys();
+        });
+      }
+    }
   }
 
   void showSnackBar(BuildContext context, String texti) {
@@ -325,6 +413,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
   }
 
   Future<void> _scan() async {
+    stopTimer();
     try {
       final result = await BarcodeScanner.scan(
         options: ScanOptions(
@@ -344,7 +433,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
       );
       setState(() {
         scanResult = result;
-        _showInputDialog(context);
+        _showInputDialog(context, false);
         keyController.text = scanResult?.rawContent ?? '';
       });
     } on PlatformException catch (e) {
