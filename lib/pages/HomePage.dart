@@ -161,14 +161,14 @@ class _HomePageState extends State<HomePage> {
   void searchInList(Map<String, dynamic> mpdata, String searchingText,
       String searchParentKey) {
     List<dynamic> result = [];
-    // print(mpdata);
+
     if (mpdata.containsKey(searchParentKey) &&
         mpdata[searchParentKey] is List) {
       List<dynamic> dataList = mpdata[searchParentKey];
 
       for (var item in dataList) {
         String name = item['name'];
-        print(name.startsWith(searchingText));
+
         if (name.startsWith(searchingText)) {
           result.add(item);
         }
@@ -254,7 +254,6 @@ class _HomePageState extends State<HomePage> {
                     ])),
                 child: InkWell(
                   onTap: () {
-                    print(auth.currentUser);
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -275,20 +274,13 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: InkWell(
                 onTap: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (builder) => StrengthPage(
-                  //               mp: mp,
-                  //               categories: categories,
-                  //             )));
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (builder) => AuthenticatorPage()));
                 },
                 child: Icon(
-                  Icons.timelapse_sharp,
+                  Icons.timelapse_rounded,
                   color: Colors.white,
                 ),
               ),
@@ -1179,7 +1171,7 @@ class CategoryCard extends StatelessWidget {
                             content: Text(
                                 "$currentStateKey and its data deleted from Server."),
                           ));
-                          print(currentStateKey);
+
                           mp.remove(currentStateKey);
                         } catch (error) {
                           print(

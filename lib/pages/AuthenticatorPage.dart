@@ -201,10 +201,6 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
               ],
               child: Icon(Icons.add),
             ),
-            InkWell(
-              onTap: () {},
-              child: Icon(Icons.edit),
-            ),
           ],
         ),
         backgroundColor: Color.fromARGB(66, 176, 174, 174),
@@ -220,16 +216,37 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
                 height: 20,
               ),
               Column(
-                children: List.generate(
-                  _secretKeysNameData.length,
-                  (index) => Column(
-                    children: [
-                      _totpCardBuilder(_secretKeysNameData[index],
-                          currentTOTPs[index], index),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                ),
+                children: _secretKeysNameData.isNotEmpty
+                    ? List.generate(
+                        _secretKeysNameData.length,
+                        (index) => Column(
+                          children: [
+                            _totpCardBuilder(
+                              _secretKeysNameData[index],
+                              currentTOTPs[index],
+                              index,
+                            ),
+                            SizedBox(height: 16),
+                          ],
+                        ),
+                      )
+                    : [
+                        Container(
+                          height: MediaQuery.of(context).size.height -
+                              (MediaQuery.of(context).size.height) / 3,
+                          child: Center(
+                            child: Text(
+                              "Add Your Authenticator Codes Here !",
+                              style: TextStyle(
+                                color: Color.fromARGB(91, 255, 255, 255),
+                                fontSize: 56,
+                                fontWeight: FontWeight.w100,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      ],
               )
             ],
           ),
@@ -248,58 +265,61 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
       onLongPress: () {
         HapticFeedback.mediumImpact();
         FlutterClipboard.copy(currentTOTP);
+        showSnackBar(context, 'Copied To Clipboard');
       },
       child: Container(
-        width: MediaQuery.of(context).size.width -
-            (MediaQuery.of(context).size.width) / 20,
-        height: MediaQuery.of(context).size.height / 6,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: index.isEven
-                ? Colors.grey[800]
-                : Color.fromARGB(136, 255, 255, 255)),
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    data[0],
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w300),
-                  )
-                ],
-              ),
-            ),
-            Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(
-                    currentTOTP,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 50,
-                        fontWeight: FontWeight.w300),
+          width: MediaQuery.of(context).size.width -
+              (MediaQuery.of(context).size.width) / 20,
+          height: MediaQuery.of(context).size.height / 6,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: index.isEven
+                  ? Colors.grey[800]
+                  : Color.fromARGB(136, 255, 255, 255)),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        data[0],
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
-                  Text(
-                    timerCountdown.toString(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w200,
-                      fontSize: 25,
-                      color: Colors.white,
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+                ),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        currentTOTP,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 50,
+                            fontWeight: FontWeight.w300),
+                      ),
+                      Text(
+                        timerCountdown.toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w200,
+                          fontSize: 25,
+                          color: Colors.white,
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )),
     );
   }
 
