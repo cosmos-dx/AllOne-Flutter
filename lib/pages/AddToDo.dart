@@ -623,8 +623,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
   Widget buttonadddata(BuildContext context, dynamic passingData) {
     DateTime now = DateTime.now();
-    String formattedTime = DateFormat.Hm().format(now);
-
+    DateTime formattedTime = DateTime.timestamp();
     bool isClicked = false;
     final user = auth.currentUser;
     final uuid = Uuid();
@@ -669,10 +668,13 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     ? _password.text
                     : encryptedPassword,
                 "iconpath": _iconpath.text,
-                "timestamp": formattedTime,
-                "category": selectedCategory != widget.parentKey
-                    ? selectedCategory
-                    : widget.parentKey,
+                // "category": selectedCategory != widget.parentKey
+                //     ? selectedCategory
+                //     : widget.parentKey,
+                "category": selectedCategory.isEmpty
+                    ? widget.parentKey
+                    : selectedCategory,
+                "timestamp": formattedTime.toString()
               };
 
               final docRef = FirebaseFirestore.instance

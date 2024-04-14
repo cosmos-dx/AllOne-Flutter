@@ -352,67 +352,65 @@ class _AllOneNotesState extends State<AllOneNotes> {
           Map<String, dynamic> data = searchResults[index];
           String passingDataKey = data.keys.join();
           String passingDataContent = data[passingDataKey]["content"];
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GestureDetector(
-                onLongPress: () {
-                  HapticFeedback.mediumImpact();
-                  showDeleteConfirmationDialog(
-                      context, {passingDataKey: data[passingDataKey]});
-                },
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (builder) => NoteViewer(
-                        title: passingDataKey,
-                        content: data[passingDataKey],
-                        updateSearchResults: (updatedData) {
-                          setState(() {
-                            searchResults[index] = updatedData;
-                          });
-                        },
-                      ),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onLongPress: () {
+                HapticFeedback.mediumImpact();
+                showDeleteConfirmationDialog(
+                    context, {passingDataKey: data[passingDataKey]});
+              },
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (builder) => NoteViewer(
+                      title: passingDataKey,
+                      content: data[passingDataKey],
+                      updateSearchResults: (updatedData) {
+                        setState(() {
+                          searchResults[index] = updatedData;
+                        });
+                      },
                     ),
-                  );
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(11)),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                    child: Container(
-                      height: 150,
-                      padding: EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(179, 78, 78, 78),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            passingDataKey ?? '',
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(11)),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                  child: Container(
+                    height: 150,
+                    padding: EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(179, 78, 78, 78),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          passingDataKey ?? '',
+                          style: TextStyle(
+                              color: Color.fromARGB(189, 255, 255, 255),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(
+                          child: Text(
+                            passingDataContent ?? '',
+                            textAlign: TextAlign.left,
                             style: TextStyle(
-                                color: Color.fromARGB(189, 255, 255, 255),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Expanded(
-                            child: Text(
-                              passingDataContent ?? '',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Color.fromARGB(167, 255, 255, 255),
-                              ),
+                              color: Color.fromARGB(167, 255, 255, 255),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ),

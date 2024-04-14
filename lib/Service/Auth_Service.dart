@@ -161,6 +161,8 @@ class AuthClass {
   Future<void> addDefaultDataToUserDatabase(
       UserCredential userCredential) async {
     final user = userCredential.user;
+    DateTime now = DateTime.now();
+    DateTime formattedTime = DateTime.timestamp();
     if (user != null) {
       final userId = user.uid;
       final uuid = Uuid();
@@ -176,6 +178,7 @@ class AuthClass {
             "siteinfo": "www.facebook.com",
             "category": "Social",
             "sitename": "www.Facebook.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -184,7 +187,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.google.com",
             "category": "Social",
-            "sitename": "www.Facebook.com",
+            "sitename": "www.google.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -193,7 +197,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.twitter.com",
             "category": "Social",
-            "sitename": "www.Facebook.com"
+            "sitename": "www.twitter.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -202,7 +207,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.instagram.com",
             "category": "Social",
-            "sitename": "www.Facebook.com"
+            "sitename": "www.instagram.com",
+            "timestamp": formattedTime.toString()
           },
         ],
         "Accounts": [
@@ -213,7 +219,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.sbi.co.in",
             "category": "Accounts",
-            "sitename": "www.statebankofindia.com"
+            "sitename": "www.statebankofindia.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -222,7 +229,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.hdfc.com",
             "category": "Accounts",
-            "sitename": "www.hdfc.com"
+            "sitename": "www.hdfc.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -231,7 +239,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.passport.in",
             "category": "Accounts",
-            "sitename": "www.passport.com"
+            "sitename": "www.passport.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -240,7 +249,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "www.metamask.com",
             "category": "Accounts",
-            "sitename": "www.blockchain.com"
+            "sitename": "www.blockchain.com",
+            "timestamp": formattedTime.toString()
           },
         ],
         "Secret": [
@@ -251,7 +261,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "My Information",
             "category": "Secret",
-            "sitename": "www.start.com"
+            "sitename": "www.start.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -260,7 +271,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "Peronal Information",
             "category": "Secret",
-            "sitename": "www.Mask.com"
+            "sitename": "www.Mask.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -269,7 +281,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "I a'nt gonna tell",
             "category": "Secret",
-            "sitename": "www.WikiPedia.com"
+            "sitename": "www.WikiPedia.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -278,7 +291,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "Thats it",
             "category": "Secret",
-            "sitename": "www.Facebook.com"
+            "sitename": "www.Facebook.com",
+            "timestamp": formattedTime.toString()
           },
         ],
         "HealSync": [
@@ -289,7 +303,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "Dairy",
             "category": "HealSync",
-            "sitename": "www.countrydelight.com"
+            "sitename": "www.countrydelight.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -298,7 +313,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "Grossary",
             "category": "HealSync",
-            "sitename": "www.jiomart.com"
+            "sitename": "www.jiomart.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -307,7 +323,8 @@ class AuthClass {
             "password": password,
             "siteinfo": "Hisab",
             "category": "HealSync",
-            "sitename": "www.paytm.com"
+            "sitename": "www.paytm.com",
+            "timestamp": formattedTime.toString()
           },
           {
             "id": uuid.v4(),
@@ -317,6 +334,7 @@ class AuthClass {
             "siteinfo": "Aadhar card",
             "category": "HealSync",
             "sitename": "www.uidai.in",
+            "timestamp": formattedTime.toString()
           },
         ],
       };
