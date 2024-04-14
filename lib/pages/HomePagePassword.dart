@@ -18,7 +18,7 @@ class _HomePagePasswordState extends State<HomePagePassword> {
   TextEditingController _localPass = TextEditingController();
   bool isTyping = false;
   String originalpassword = "";
-
+  String defaultpass = 'pass';
   AuthClass authClass = AuthClass();
   final FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -255,7 +255,7 @@ class _HomePagePasswordState extends State<HomePagePassword> {
                 width: 150,
                 height: 150,
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(181, 255, 255, 255),
+                  color: Color.fromARGB(203, 255, 255, 255),
                   borderRadius: BorderRadius.circular(75),
                 ),
               ),
@@ -265,14 +265,16 @@ class _HomePagePasswordState extends State<HomePagePassword> {
                 width: containerSize + 50,
                 height: containerSize - 100,
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(128, 62, 63, 64),
+                  color: Color.fromARGB(243, 69, 70, 71),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      isTyping ? 'Never Ever Forget Your Pass' : "Password",
+                      isTyping
+                          ? 'Never Ever Forget Your Pass'
+                          : "Enter Password",
                       style: TextStyle(
                         color: isTyping
                             ? Color.fromARGB(239, 255, 24, 3)
@@ -288,7 +290,7 @@ class _HomePagePasswordState extends State<HomePagePassword> {
                       autofillHints: [_localPass.text],
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(
-                        hintText: "Default Password is 'pass'",
+                        hintText: "Default Password is ${defaultpass}",
                         hintStyle: TextStyle(color: Colors.amber),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -313,7 +315,7 @@ class _HomePagePasswordState extends State<HomePagePassword> {
                         style: TextStyle(
                           color: isTyping
                               ? Color.fromARGB(238, 49, 255, 3)
-                              : Color.fromARGB(255, 176, 25, 25),
+                              : Color.fromARGB(255, 252, 110, 16),
                           fontSize: 14,
                           fontWeight:
                               isTyping ? FontWeight.bold : FontWeight.bold,

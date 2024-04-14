@@ -119,24 +119,38 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
 
   String generateTOTP(String secret,
       {int timeStep = 30, int digits = 6, int? currentTime}) {
+    if (secret.isEmpty) {
+      return "Empty Key";
+    }
+    if (digits <= 0 || digits > 10) {
+      return "Internal Error";
+    }
+
     currentTime ??= DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    currentTime += 3; //added time difference
 
     currentTime ~/= timeStep;
 
     final timeBytes = ByteData(8);
     timeBytes.setUint64(0, currentTime);
+    List<int> secretBytes;
+    try {
+      secretBytes = base32.decode(secret);
+    } catch (e) {
+      return "Incorrect Key!";
+    }
 
-    final secretBytes = base32.decode(secret);
     final hmac = Hmac(sha1, secretBytes);
     final hmacResult = hmac.convert(timeBytes.buffer.asUint8List());
 
     final offset = hmacResult.bytes[hmacResult.bytes.length - 1] & 0xF;
 
     final truncatedHash = hmacResult.bytes.sublist(offset, offset + 4);
-    final int otp =
-        truncatedHash.fold<int>(0, (value, element) => (value << 8) + element) %
-            (pow(10, digits) as int);
+    int otp = 0;
+    for (var element in truncatedHash) {
+      otp = (otp << 8) + element;
+    }
+    otp = otp & 0x7fffffff;
+    otp = otp % (pow(10, digits) as int);
 
     final otpStr = otp.toString().padLeft(digits, '0');
 
@@ -145,7 +159,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
 
   int getTimeUntilNextStep({int timeStep = 30}) {
     final currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    return timeStep - ((currentTime + 3) % timeStep); //added time difference
+    return timeStep - ((currentTime) % timeStep);
   }
 
   @override
@@ -153,6 +167,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        foregroundColor: Colors.white,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -206,51 +221,96 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
         backgroundColor: Color.fromARGB(66, 176, 174, 174),
         toolbarHeight: 60,
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              SizedBox(
-                height: 20,
-              ),
-              Column(
-                children: _secretKeysNameData.isNotEmpty
-                    ? List.generate(
-                        _secretKeysNameData.length,
-                        (index) => Column(
-                          children: [
-                            _totpCardBuilder(
-                              _secretKeysNameData[index],
-                              currentTOTPs[index],
-                              index,
-                            ),
-                            SizedBox(height: 16),
-                          ],
-                        ),
-                      )
-                    : [
-                        Container(
-                          height: MediaQuery.of(context).size.height -
-                              (MediaQuery.of(context).size.height) / 3,
-                          child: Center(
-                            child: Text(
-                              "Add Your Authenticator Codes Here !",
-                              style: TextStyle(
-                                color: Color.fromARGB(91, 255, 255, 255),
-                                fontSize: 56,
-                                fontWeight: FontWeight.w100,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        )
-                      ],
-              )
-            ],
+      body: Stack(
+        children: [
+          Positioned(
+            left: -80,
+            top: -10,
+            width: 260,
+            child: Container(
+              height: 260,
+              width: 260,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.indigo,
+                      Colors.blue,
+                      Colors.pink,
+                      Colors.orange
+                    ],
+                    transform: GradientRotation(6.8),
+                  ),
+                  borderRadius: BorderRadius.circular(260)),
+            ),
           ),
-        ),
+          Positioned(
+            right: -70,
+            bottom: -50,
+            width: 260,
+            height: 350,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orange,
+                    Colors.pink,
+                    Colors.blue,
+                    Colors.indigo,
+                  ],
+                  transform: GradientRotation(6.7),
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Column(
+                    children: _secretKeysNameData.isNotEmpty
+                        ? List.generate(
+                            _secretKeysNameData.length,
+                            (index) => Column(
+                              children: [
+                                _totpCardBuilder(
+                                  _secretKeysNameData[index],
+                                  currentTOTPs[index],
+                                  index,
+                                ),
+                                SizedBox(height: 16),
+                              ],
+                            ),
+                          )
+                        : [
+                            Container(
+                              height: MediaQuery.of(context).size.height -
+                                  (MediaQuery.of(context).size.height) / 3,
+                              child: Center(
+                                child: Text(
+                                  "Add Your Authenticator Codes Here !",
+                                  style: TextStyle(
+                                    color: Color.fromARGB(91, 255, 255, 255),
+                                    fontSize: 56,
+                                    fontWeight: FontWeight.w100,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            )
+                          ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -295,28 +355,33 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
                     ],
                   ),
                 ),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        currentTOTP,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 50,
-                            fontWeight: FontWeight.w300),
+                SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(
+                            currentTOTP,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 50,
+                                fontWeight: FontWeight.w300),
+                          ),
+                          SizedBox(
+                            width: 30,
+                          ),
+                          Text(
+                            timerCountdown.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w200,
+                              fontSize: 25,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
                       ),
-                      Text(
-                        timerCountdown.toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w200,
-                          fontSize: 25,
-                          color: Colors.white,
-                        ),
-                      )
-                    ],
-                  ),
-                )
+                    )),
               ],
             ),
           )),
@@ -348,7 +413,7 @@ class _AuthenticatorPageState extends State<AuthenticatorPage> {
             !forEdit
                 ? ElevatedButton(
                     onPressed: () async {
-                      String key = keyController.text.toString();
+                      String key = keyController.text.trim().toString();
                       String name = nameController.text.toString();
                       if (key.isEmpty || name.isEmpty) {
                         showSnackBar(context, "Value cannot be empty");

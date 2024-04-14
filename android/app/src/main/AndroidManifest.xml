@@ -46,6 +46,12 @@
             android:resource="@xml/autofill_service" />
 
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
 
 
 

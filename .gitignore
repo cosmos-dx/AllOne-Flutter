@@ -38,6 +38,11 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 app.*.google-services.json
+android.app/google-services.json
+/google-services.json
+.google-services.json
+.key.properties
+android/app/key.properties
 
 # Android Studio will place build artifacts here
 /android/app/debug

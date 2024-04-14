@@ -11,8 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class NoteViewer extends StatefulWidget {
   final String title;
   final dynamic content;
+  final Function(Map<String, dynamic>) updateSearchResults;
 
-  NoteViewer({required this.title, required this.content});
+  NoteViewer(
+      {required this.title,
+      required this.content,
+      required this.updateSearchResults});
 
   @override
   _NoteViewerState createState() => _NoteViewerState();
@@ -32,6 +36,7 @@ class _NoteViewerState extends State<NoteViewer> {
   }
 
   Future<void> saveData(String title, String newContent) async {
+    print("-----$title ---- $newContent ------ ${widget.content}");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final noteData = prefs.getString(title);
 
@@ -44,6 +49,7 @@ class _NoteViewerState extends State<NoteViewer> {
     noteMap['content'] = newContent;
     final updatedData = json.encode(noteMap);
     await prefs.setString(title, updatedData);
+    return widget.updateSearchResults({title: json.decode(updatedData)});
   }
 
   @override
@@ -51,6 +57,7 @@ class _NoteViewerState extends State<NoteViewer> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        foregroundColor: Colors.white,
         backgroundColor: Colors.black,
         toolbarHeight: 50,
         title: Row(
@@ -74,124 +81,116 @@ class _NoteViewerState extends State<NoteViewer> {
           ],
         ),
       ),
-      body: WillPopScope(
-          child: Stack(
-            children: [
-              Positioned(
-                left: -80,
-                top: -30,
-                width: 350,
-                height: 350,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.orange,
-                        Colors.pink,
-                        Colors.blue,
-                        Colors.indigo,
-                      ],
-                      transform: GradientRotation(3.6),
-                    ),
-                    shape: BoxShape.circle,
-                  ),
+      body: Stack(
+        children: [
+          Positioned(
+            left: -80,
+            top: -30,
+            width: 350,
+            height: 350,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orange,
+                    Colors.pink,
+                    Colors.blue,
+                    Colors.indigo,
+                  ],
+                  transform: GradientRotation(3.6),
                 ),
+                shape: BoxShape.circle,
               ),
-              Positioned(
-                right: -80,
-                bottom: -50,
-                width: 350,
-                height: 350,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.orange,
-                        Colors.pink,
-                        Colors.blue,
-                        Colors.indigo,
-                      ],
-                      transform: GradientRotation(6.5),
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-              Container(
-                color: Color.fromARGB(134, 0, 0, 0),
-                child: Padding(
-                  padding: EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Title:',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // Set text color to white
-                        ),
-                      ),
-                      TextFormField(
-                        controller: titleController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter a title',
-                          hintStyle: TextStyle(color: Colors.white),
-                        ),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'Content:',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(141, 0, 0, 0),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: TextFormField(
-                            controller: contentController,
-                            expands: true,
-                            maxLines: null,
-                            style: TextStyle(
-                                color: Color.fromARGB(171, 255, 255, 255)),
-                            onChanged: (newContent) {
-                              // Save the data when the content changes
-                              saveData(titleController.text, newContent);
-                            },
-                            decoration: InputDecoration(
-                              focusedBorder: InputBorder.none,
-                              border: InputBorder.none,
-                              hintText: 'Enter your notes',
-                              hintStyle: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255)),
-                              contentPadding: EdgeInsets.all(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          onWillPop: () async {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (builder) => AllOneNotes()),
-            );
-            return false;
-          }),
+          Positioned(
+            right: -80,
+            bottom: -50,
+            width: 350,
+            height: 350,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orange,
+                    Colors.pink,
+                    Colors.blue,
+                    Colors.indigo,
+                  ],
+                  transform: GradientRotation(6.5),
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Container(
+            color: Color.fromARGB(134, 0, 0, 0),
+            child: Padding(
+              padding: EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Title:',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextFormField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter a title',
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(height: 16.0),
+                  Text(
+                    'Content:',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(141, 0, 0, 0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextFormField(
+                        controller: contentController,
+                        expands: true,
+                        maxLines: null,
+                        style: TextStyle(
+                            color: Color.fromARGB(171, 255, 255, 255)),
+                        onChanged: (newContent) {
+                          print(newContent);
+                          saveData(titleController.text, newContent);
+                        },
+                        decoration: InputDecoration(
+                          focusedBorder: InputBorder.none,
+                          border: InputBorder.none,
+                          hintText: 'Enter your notes',
+                          hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 255, 255, 255)),
+                          contentPadding: EdgeInsets.all(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final user = auth.currentUser;

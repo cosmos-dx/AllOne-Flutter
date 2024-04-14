@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:planner_app/Customs/TodoCard.dart';
 import 'package:planner_app/Service/Auth_Service.dart';
 import 'package:planner_app/Service/FingerprintAuthentication.dart';
 import 'package:planner_app/pages/AddToDo.dart';

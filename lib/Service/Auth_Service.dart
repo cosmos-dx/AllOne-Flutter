@@ -165,7 +165,7 @@ class AuthClass {
       final userId = user.uid;
       final uuid = Uuid();
       EncryptionService encryptionService = EncryptionService('${userId}');
-      String password = encryptionService.encrypt("www.github.com/cosmos-dx");
+      String password = encryptionService.encrypt("Keep Your Password Here");
       final defaultData = {
         "Social": [
           {

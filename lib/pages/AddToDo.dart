@@ -347,12 +347,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                                                 ElevatedButton(
                                                   style:
                                                       ElevatedButton.styleFrom(
-                                                          primary:
-                                                              Color.fromARGB(
-                                                                  255,
-                                                                  0,
-                                                                  0,
-                                                                  0)),
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                            255, 0, 0, 0),
+                                                  ),
                                                   onPressed: () {
                                                     generatePassword(true);
                                                     Navigator.pop(context);
@@ -646,9 +644,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
           if (_displayName.text.isEmpty ||
               _datainfo.text.isEmpty ||
               _sitename.text.isEmpty ||
-              _password.text.isEmpty ||
-              _iconpath.text.isEmpty) {
+              _password.text.isEmpty) {
             showSnackBar(context, "Empty Field Not Allowed");
+          } else if (_iconpath.text.isEmpty) {
+            showSnackBar(context, "Pick an Icon");
           } else {
             setState(() {
               isLoading = true;
