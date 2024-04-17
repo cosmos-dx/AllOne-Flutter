@@ -123,8 +123,9 @@ class _AddTodoPageState extends State<AddTodoPage> {
       for (int i = 0; i < passwordLength; i++) {
         password += chars[random.nextInt(chars.length)];
       }
-
-      _password.text = password;
+      setState(() {
+        _password.text = password;
+      });
     } else if (!regenerate) {
       _password.text = '';
     }
@@ -219,8 +220,8 @@ class _AddTodoPageState extends State<AddTodoPage> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25, vertical: 10),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 25, vertical: 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -233,11 +234,11 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             letterSpacing: 4,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        SizedBox(height: 0),
                         Text(
                           "New Password",
                           style: TextStyle(
-                            fontSize: 36,
+                            fontSize: 34,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2,
@@ -281,94 +282,108 @@ class _AddTodoPageState extends State<AddTodoPage> {
                         ),
                         Row(
                           children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 5.0, sigmaY: 5.0),
-                                      child: StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return AlertDialog(
-                                            backgroundColor: Color.fromARGB(
-                                                    170, 110, 108, 108)
-                                                .withOpacity(0.7),
-                                            title: Text("Password Options",
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                customSwitchListTile(
-                                                  title:
-                                                      "Include Special Characters",
-                                                  value: allowSpecialCharacters,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      allowSpecialCharacters =
-                                                          value;
-                                                    });
-                                                  },
-                                                ),
-                                                customSwitchListTile(
-                                                  title: "Include Numbers",
-                                                  value: allowNumbers,
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      allowNumbers = value;
-                                                    });
-                                                  },
-                                                ),
-                                                Text(
-                                                    "Password Length: ${passwordLength.toInt()}",
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                                SliderTheme(
-                                                  data: SliderTheme.of(context)
-                                                      .copyWith(
-                                                    trackHeight: 8.0,
-                                                    thumbColor: Colors.black,
-                                                    activeTrackColor:
-                                                        Colors.white,
+                            isDataAvailable
+                                ? SizedBox()
+                                : ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return BackdropFilter(
+                                            filter: ImageFilter.blur(
+                                                sigmaX: 5.0, sigmaY: 5.0),
+                                            child: StatefulBuilder(
+                                              builder: (context, setState) {
+                                                return AlertDialog(
+                                                  backgroundColor:
+                                                      Color.fromARGB(170, 110,
+                                                              108, 108)
+                                                          .withOpacity(0.7),
+                                                  title: Text(
+                                                      "Password Options",
+                                                      style: TextStyle(
+                                                          color: Colors.white)),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      customSwitchListTile(
+                                                        title:
+                                                            "Include Special Characters",
+                                                        value:
+                                                            allowSpecialCharacters,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            allowSpecialCharacters =
+                                                                value;
+                                                          });
+                                                        },
+                                                      ),
+                                                      customSwitchListTile(
+                                                        title:
+                                                            "Include Numbers",
+                                                        value: allowNumbers,
+                                                        onChanged: (value) {
+                                                          setState(() {
+                                                            allowNumbers =
+                                                                value;
+                                                          });
+                                                        },
+                                                      ),
+                                                      Text(
+                                                          "Password Length: ${passwordLength.toInt()}",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                      SliderTheme(
+                                                        data: SliderTheme.of(
+                                                                context)
+                                                            .copyWith(
+                                                          trackHeight: 8.0,
+                                                          thumbColor:
+                                                              Colors.black,
+                                                          activeTrackColor:
+                                                              Colors.white,
+                                                        ),
+                                                        child: Slider(
+                                                          value: passwordLength,
+                                                          min: 8,
+                                                          max: 20,
+                                                          onChanged: (value) {
+                                                            setState(() {
+                                                              passwordLength =
+                                                                  value;
+                                                            });
+                                                          },
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              Color.fromARGB(
+                                                                  255, 0, 0, 0),
+                                                        ),
+                                                        onPressed: () {
+                                                          generatePassword(
+                                                              true);
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: Text(
+                                                            "Generate Password"),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  child: Slider(
-                                                    value: passwordLength,
-                                                    min: 8,
-                                                    max: 20,
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        passwordLength = value;
-                                                      });
-                                                    },
-                                                  ),
-                                                ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Color.fromARGB(
-                                                            255, 0, 0, 0),
-                                                  ),
-                                                  onPressed: () {
-                                                    generatePassword(true);
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child:
-                                                      Text("Generate Password"),
-                                                ),
-                                              ],
+                                                );
+                                              },
                                             ),
                                           );
                                         },
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                              child: Text("Generate Password"),
-                            ),
+                                      );
+                                    },
+                                    child: Text("Generate Password"),
+                                  ),
                             SizedBox(width: 10),
                           ],
                         ),
@@ -465,10 +480,13 @@ class _AddTodoPageState extends State<AddTodoPage> {
                               )
                             : DecryptPasswordButton(
                                 onPressed: () {
+                                  setState(() {
+                                    isDataAvailable = false;
+                                  });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        "sdfsdf",
+                                        "Decrypted",
                                         style: TextStyle(color: Colors.amber),
                                       ),
                                     ),
@@ -484,7 +502,10 @@ class _AddTodoPageState extends State<AddTodoPage> {
                             ? SizedBox(
                                 height: 15,
                               )
-                            : buttonadddata(context, passingData)
+                            : buttonadddata(context, passingData),
+                        SizedBox(
+                          height: 25,
+                        )
                       ],
                     ),
                   )
@@ -570,7 +591,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
     return Container(
       width: MediaQuery.of(context).size.width - 70,
-      height: 55,
+      height: 60,
       child: TextField(
         controller: controller,
         obscureText: obsecuretext,

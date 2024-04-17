@@ -1,4 +1,4 @@
-package com.example.planner_app
+package com.allone.planner_app
 
 
 import io.flutter.embedding.android.FlutterFragmentActivity

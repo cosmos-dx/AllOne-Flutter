@@ -427,7 +427,7 @@ class _AllOneNotesState extends State<AllOneNotes> {
                 builder: (BuildContext context) {
                   String noteName = '';
                   String noteContent = '';
-                  String title = 'Add Note';
+                  String title = 'Add Note (It cannot be changed)';
                   return AlertDialog(
                     title: Text(title),
                     content: Column(

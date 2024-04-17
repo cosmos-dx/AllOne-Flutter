@@ -148,7 +148,6 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
 
   Widget otpField() {
     return OTPTextField(
-
       length: 6,
       width: MediaQuery.of(context).size.width - 34,
       fieldWidth: 58,
@@ -185,7 +184,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
       child: TextFormField(
         controller: phoneController,
         style: TextStyle(color: Colors.white, fontSize: 17),
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.phone,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Enter your Phone Number",

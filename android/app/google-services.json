@@ -1,41 +1,49 @@
 {
   "project_info": {
-    "project_number": "254373878253",
-    "project_id": "todoflutter-eba72",
-    "storage_bucket": "todoflutter-eba72.appspot.com"
+    "project_number": "368464651413",
+    "project_id": "allone-90859",
+    "storage_bucket": "allone-90859.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:254373878253:android:a36703dbf2c49254516fe4",
+        "mobilesdk_app_id": "1:368464651413:android:ca9142f75a387bfd53279c",
         "android_client_info": {
-          "package_name": "com.cosmic.planner_app"
+          "package_name": "com.allone.planner_app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "254373878253-dibpfn0nq3i4j46jood5n1pbf14v91nc.apps.googleusercontent.com",
+          "client_id": "368464651413-ago7v0jo2ndugecpjefj3gif7esucfv1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.cosmic.planner_app",
+            "package_name": "com.allone.planner_app",
             "certificate_hash": "ab6a119f7d1a8ac7d1829d1846a91dae452f7f9b"
           }
         },
         {
-          "client_id": "254373878253-54mlp3fs8u6hddum4ic7nb4ggb98b9gi.apps.googleusercontent.com",
+          "client_id": "368464651413-jmftv1vj2jlbfgqcu1u6utifjpdsq8at.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allone.planner_app",
+            "certificate_hash": "6770f327d9d94f93697a5bb2b5c58a23b9bfc29a"
+          }
+        },
+        {
+          "client_id": "368464651413-04seid7s33jfd4iguhmb2tqrqrcl2j9g.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBos6XqMFkUi0kfIU51GWiVxWK6Uwa3dzY"
+          "current_key": "AIzaSyAjqE44igxkAy24cKm3PS8vwEd7d9akTw0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "254373878253-54mlp3fs8u6hddum4ic7nb4ggb98b9gi.apps.googleusercontent.com",
+              "client_id": "368464651413-04seid7s33jfd4iguhmb2tqrqrcl2j9g.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -341,7 +341,7 @@ class AuthClass {
 
       try {
         final firestore = FirebaseFirestore.instance;
-        final collection = firestore.collection('AllOneData');
+        final collection = firestore.collection('AllOneData'); 
         final userDocument = collection.doc(userId);
         final userDocSnapshot = await userDocument.get();
         if (!userDocSnapshot.exists) {

@@ -140,6 +140,7 @@ class _NoteViewerState extends State<NoteViewer> {
                   ),
                   TextFormField(
                     controller: titleController,
+                    enabled: false,
                     decoration: InputDecoration(
                       hintText: 'Enter a title',
                       hintStyle: TextStyle(color: Colors.white),
